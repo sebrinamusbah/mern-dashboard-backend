@@ -1,9 +1,8 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import authRoutes from "./routes/auth.js"; // make sure to include .js extension
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
@@ -12,24 +11,15 @@ const app = express();
 // Middleware
 app.use(express.json());
 
-// CORS configuration
-const allowedOrigins = [
-  "http://localhost:3000", // local frontend
-  "https://mern-dashboard-frontend-seven.vercel.app", // production frontend
-];
-
+// ✅ NEW CORS CONFIG (working)
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like Postman)
-      if (!origin) return callback(null, true);
-      if (!allowedOrigins.includes(origin)) {
-        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    credentials: true, // needed if using cookies
+    origin: [
+      "http://localhost:3000",
+      "https://mern-dashboard-frontend-seven.vercel.app",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
