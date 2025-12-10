@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import taskRoutes from "./routes/task.js";
-import "./config/db.js"; // your DB connection file
+import "./config/db.js";
 
 dotenv.config();
 
@@ -24,8 +24,8 @@ app.use(
 );
 
 // ===== ROUTES =====
-app.use("/api/auth", authRoutes); // /api/auth/register, /api/auth/login
-app.use("/api/tasks", taskRoutes); // /api/tasks, /api/tasks/:id
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
 
 // Test route
 app.get("/", (req, res) => {
