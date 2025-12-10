@@ -1,34 +1,50 @@
-import express from "express";
-import cors from "cors";
-import { connectDB, sequelize } from "./config/db.js";
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
-import authRoutes from "./routes/auth.js";
-import taskRoutes from "./routes/task.js";
-import "./models/associations.js";
+dotenv.config();
 
 const app = express();
+
+// Middleware to parse JSON
 app.use(express.json());
 
-// ✅ Enable CORS for your frontend URL
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:3000", // for local frontend testing
+  "https://mern-dashboard-frontend-seven.vercel.app", // your production frontend
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
-    credentials: true,
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) === -1) {
+        const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true, // if you need cookies/auth
   })
 );
 
-// Connect MySQL / Postgres
-connectDB();
-
-// Sync tables
-sequelize.sync({ alter: true }).then(() => {
-  console.log("Database tables synced");
-});
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error(err));
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/tasks", taskRoutes);
+app.use("/api/auth", require("./routes/auth")); // your auth routes
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`Server running on port ${process.env.PORT || 5000}`);
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
